@@ -1,18 +1,26 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: oneview-2-acm-assets
+  name: oneview-2-acm-hosts
   namespace: open-cluster-management
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: oneview-2-acm-assets
+      app: oneview-2-acm-hosts
   template:
     metadata:
       labels:
-        app: oneview-2-acm-assets
+        app: oneview-2-acm-hosts
     spec:
+      restartPolicy: Always
+      serviceAccountName: multicluster-operators
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      securityContext: {}
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
       containers:
         - name: cli
           image: 'registry.access.redhat.com/ubi7/ubi'
@@ -20,21 +28,23 @@ spec:
             - bash
             - '-c'
             - >-
-              curl http://downloads.openshift-console:80/amd64/linux/oc.tar -o oc.tar
+              curl http://downloads.openshift-console:80/amd64/linux/oc.tar -o
+              oc.tar
+
               tar xvf oc.tar
-              while [[ 1 ]]; 
-              do
+
+              while [[ 1 ]];  do
                find /tmp -name *.cluster -mmin -60 -delete
                find /tmp -name kubeconfig.* -mmin -60 -delete
                for cluster in `./oc get managedclusters.cluster.open-cluster-management.io | awk '{if ($1 != "NAME") print $1;}'`; do
                 if [[ ! -f /tmp/kubeconfig.$cluster ]]; then 
-                 ./oc -n $cluster get secret | grep "\-admin\-kubeconfig" | awk '{system("./oc -n '$cluster' get secret "$1" -o jsonpath=\"{.data.kubeconfig}\" | base64 -d > /tmp/kubeconfig.'$cluster'");}'
+                ./oc -n $cluster get secret | grep "\-admin\-kubeconfig" | awk '{system("./oc -n '$cluster' get secret "$1" -o jsonpath=\"{.data.kubeconfig}\" | base64 -d > /tmp/kubeconfig.'$cluster'");}'
                 fi
                 if [[ -f /tmp/kubeconfig.$cluster ]]; then 
-                 KUBECONFIG=/tmp/kubeconfig.$cluster ./oc get nodes | awk '{if ($1!="NAME") system("echo '$cluster' > /tmp/"$1".cluster");}'
+                KUBECONFIG=/tmp/kubeconfig.$cluster ./oc get nodes | awk '{if ($1!="NAME") system("echo '$cluster' > /tmp/"$1".cluster");}'
                 fi
-               done
-               /bin/rm -f assets/*.cluster assets/*.bma
+               done 
+               /bin/rm -f assets/*.cluster assets/*.bma 
                cp /tmp/*.cluster assets
                /bin/rm -f old/*; 
                for file in `ls -1 assets/*.yaml`; do mv $file old; done;
@@ -48,10 +58,12 @@ spec:
                ./oc get baremetalassets.inventory.open-cluster-management.io -n open-cluster-management | awk '{if ($1!="NAME") system("touch /assets/"$1".bma");}'
                for host in `ls -1 assets | grep "\.bma$"  | awk -F\. '{print $1;}'`; do if [[ ! -f assets/$host.yaml ]]; then ./oc delete baremetalassets.inventory.open-cluster-management.io $host -n open-cluster-management; fi; done;
                sleep 60; 
-              done
+               done
           volumeMounts:
             - name: assets
-              mountPath: assets        
+              mountPath: assets 
+            - name: hosts
+              mountPath: hosts        
             - name: last
               mountPath: old                 
         - name: server
@@ -75,13 +87,17 @@ spec:
           ports:
             - containerPort: 8080
               protocol: TCP
-          image: 'quay.io/fdavalo/oneview-2-acm-assets:latest'
+          image: 'quay.io/feven/oneview-2-acm-host:latest'
           volumeMounts:
             - name: assets
-              mountPath: /opt/app-root/src/assets          
+              mountPath: /opt/app-root/src/assets  
+            - name: hosts
+              mountPath: /opt/app-root/src/hosts        
       serviceAccount: multicluster-operators
       volumes:
         - name: assets
           emptyDir: {}   
+        - name: hosts
+          emptyDir: {}  
         - name: last
           emptyDir: {}            

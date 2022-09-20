@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: oneview-2-acm-assets
+  name: oneview-2-acm-hosts
   namespace: open-cluster-management
 spec:
   selector:
-    app: oneview-2-acm-assets
+    app: oneview-2-acm-hosts
   ports:
     - protocol: TCP
       port: 8080

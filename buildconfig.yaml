@@ -1,15 +1,15 @@
 kind: BuildConfig
 apiVersion: build.openshift.io/v1
 metadata:
-  name: "oneview-2-acm-assets" 
+  name: "oneview-2-acm-hosts" 
   namespace: open-cluster-management
 spec:
   output:
     to:
       kind: DockerImage
-      name: 'quay.io/feven/oneview-2-acm-assets:latest'
+      name: 'quay.io/feven/oneview-2-acm-host:latest'
     pushSecret:
-      name: fdavalo-fdavalo-robot-pull-secret
+      name: quay-feven-creds
   strategy:
     type: Source
     sourceStrategy:
@@ -20,5 +20,5 @@ spec:
   source:
     type: Git
     git:
-      uri: 'https://github.com/feven-redhat/oneview-2-acm-assets'
+      uri: 'https://github.com/feven-redhat/oneview-2-acm-hosts'
   runPolicy: Serial

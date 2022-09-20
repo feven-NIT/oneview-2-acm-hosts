@@ -1,13 +1,13 @@
 kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
-  name: oneview-2-acm-assets
+  name: oneview-2-acm-hosts
   namespace: open-cluster-management
 spec:
-  host: oneview-2-acm-assets.apps.ocp1.redhat.hpecic.net
+  host: oneview-2-acm-hosts.apps.ocp1.redhat.hpecic.net
   to:
     kind: Service
-    name: oneview-2-acm-assets
+    name: oneview-2-acm-hosts
     weight: 100
   port:
     targetPort: 8080
