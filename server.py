@@ -83,13 +83,13 @@ def assets():
   baremetalHost = file.read()
   file.close()
 
-  print(test1)
+  print("test1")
 
   #Get BaremetalAsset Template
   file=open('resources/asset.yaml')
   baremetalAsset = file.read()
   file.close()
-  print(test2)
+  print("test2")
 
   oneview_client = oneviewClient()
   try:
@@ -100,7 +100,7 @@ def assets():
     profile_templates = oneview_client.server_profile_templates
     all_templates = profile_templates.get_all()    
     
-    print(test3)
+    print("test3")
     templatesUri = {}
     for template in all_templates:
       templatesUri[template['uri']] = template['name']
@@ -122,12 +122,12 @@ def assets():
           asset['url']='ipmi://'+hard['mpHostInfo']['mpIpAddresses'][0]['address']
           asset['power'] = hard['powerState']
       cluster = None
-      print(test4)
+      print("test4")
       try:
           file=open("assets/"+profile['name']+".cluster")
           asset['cluster']=file.read()
           file.close()
-          print(test5)
+          print("test5")
       except Exception as ee:
           pass
       if 'power' in asset and 'url' in asset and 'mac' in asset and 'role' in asset:
@@ -140,7 +140,7 @@ def assets():
             str = str.replace('@'+key+'@', asset[key])
           file.write(str)
           file.close()
-          print(test6)
+          print("test6")
 
           #add BaremetalAssets
           file=open('assets/'+profile['name']+'.yaml', 'w+')
@@ -151,12 +151,12 @@ def assets():
           str=str.replace('@password64@', b64(asset['password']))
           file.write(str)
           file.close()
-          print(test7)
+          print("test7")
           
           file=open('assets/'+profile['name']+'.mac', 'w+')
           file.write(asset['mac-baremetal'])
           file.close()
-          print(test8)
+          print("test8")
         assets[profile['name']]=asset
   except Exception as e:
     pprint(e)
