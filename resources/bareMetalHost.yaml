@@ -1,0 +1,19 @@
+---
+apiVersion: metal3.io/v1alpha1
+kind: BareMetalHost
+metadata:
+  name: @name@
+  namespace: bm4
+  annotations:
+    inspect.metal3.io: disabled
+  labels:
+    infraenvs.agent-install.openshift.io: "@name@"
+spec:
+  bootMode: "UEFI"
+  bmc:
+    address: @url@
+    disableCertificateVerification: true
+    credentialsName: onpremise
+  bootMACAddress: @mac@
+  automatedCleaningMode: baremetal-asset-secret
+  online: true

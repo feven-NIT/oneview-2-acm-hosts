@@ -1,0 +1,87 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: oneview-2-acm-assets
+  namespace: open-cluster-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oneview-2-acm-assets
+  template:
+    metadata:
+      labels:
+        app: oneview-2-acm-assets
+    spec:
+      containers:
+        - name: cli
+          image: 'registry.access.redhat.com/ubi7/ubi'
+          command:
+            - bash
+            - '-c'
+            - >-
+              curl http://downloads.openshift-console:80/amd64/linux/oc.tar -o oc.tar
+              tar xvf oc.tar
+              while [[ 1 ]]; 
+              do
+               find /tmp -name *.cluster -mmin -60 -delete
+               find /tmp -name kubeconfig.* -mmin -60 -delete
+               for cluster in `./oc get managedclusters.cluster.open-cluster-management.io | awk '{if ($1 != "NAME") print $1;}'`; do
+                if [[ ! -f /tmp/kubeconfig.$cluster ]]; then 
+                 ./oc -n $cluster get secret | grep "\-admin\-kubeconfig" | awk '{system("./oc -n '$cluster' get secret "$1" -o jsonpath=\"{.data.kubeconfig}\" | base64 -d > /tmp/kubeconfig.'$cluster'");}'
+                fi
+                if [[ -f /tmp/kubeconfig.$cluster ]]; then 
+                 KUBECONFIG=/tmp/kubeconfig.$cluster ./oc get nodes | awk '{if ($1!="NAME") system("echo '$cluster' > /tmp/"$1".cluster");}'
+                fi
+               done
+               /bin/rm -f assets/*.cluster assets/*.bma
+               cp /tmp/*.cluster assets
+               /bin/rm -f old/*; 
+               for file in `ls -1 assets/*.yaml`; do mv $file old; done;
+               curl http://localhost:8080/assets.js 2>/dev/null 1>/dev/null; 
+               for host in `ls -1 assets | grep "\.yaml$" | awk -F\. '{print $1;}'`; do 
+                ./oc apply -f assets/$host.yaml
+                mac=`cat assets/$host.mac`
+                curl http://cluster-ip.redhat.hpecic.net:8080 -d "host=$host&mac=$mac" 2>/dev/null 1>/dev/null
+               done;
+               for file in `ls -1 old`; do if [[ ! -f assets/$file ]]; then ./oc delete -f old/$file; fi; done;
+               ./oc get baremetalassets.inventory.open-cluster-management.io -n open-cluster-management | awk '{if ($1!="NAME") system("touch /assets/"$1".bma");}'
+               for host in `ls -1 assets | grep "\.bma$"  | awk -F\. '{print $1;}'`; do if [[ ! -f assets/$host.yaml ]]; then ./oc delete baremetalassets.inventory.open-cluster-management.io $host -n open-cluster-management; fi; done;
+               sleep 60; 
+              done
+          volumeMounts:
+            - name: assets
+              mountPath: assets        
+            - name: last
+              mountPath: old                 
+        - name: server
+          command:
+            - python3
+            - server.py
+            - '8080'            
+          env:
+            - name: ONEVIEWSDK_IP
+              value: oneview.redhat.hpecic.net
+            - name: ONEVIEWSDK_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: oneview
+                  key: username
+            - name: ONEVIEWSDK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: oneview
+                  key: password
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          image: 'quay.io/fdavalo/oneview-2-acm-assets:latest'
+          volumeMounts:
+            - name: assets
+              mountPath: /opt/app-root/src/assets          
+      serviceAccount: multicluster-operators
+      volumes:
+        - name: assets
+          emptyDir: {}   
+        - name: last
+          emptyDir: {}            

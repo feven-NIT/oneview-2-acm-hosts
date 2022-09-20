@@ -1,0 +1,24 @@
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  name: "oneview-2-acm-assets" 
+  namespace: open-cluster-management
+spec:
+  output:
+    to:
+      kind: DockerImage
+      name: 'quay.io/feven/oneview-2-acm-assets:latest'
+    pushSecret:
+      name: fdavalo-fdavalo-robot-pull-secret
+  strategy:
+    type: Source
+    sourceStrategy:
+      from:
+        kind: ImageStreamTag
+        namespace: openshift
+        name: 'python:3.8'
+  source:
+    type: Git
+    git:
+      uri: 'https://github.com/feven-redhat/oneview-2-acm-assets'
+  runPolicy: Serial

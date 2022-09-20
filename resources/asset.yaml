@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: baremetal-asset-secret
+  namespace: open-cluster-management
+type: Opaque
+data:
+  password: @password64@
+  username: @username64@
+---
+apiVersion: inventory.open-cluster-management.io/v1alpha1
+kind: BareMetalAsset
+metadata:
+  name: @name@
+  namespace: open-cluster-management
+spec:
+  bmc:
+    address: @url@
+    credentialsName: baremetal-asset-secret
+  bootMACAddress: @mac@
+  role: @role@

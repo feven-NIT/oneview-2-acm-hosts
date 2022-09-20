@@ -1,0 +1,122 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: create-bm4-cluster-assets
+  namespace: open-cluster-management
+spec:
+  tasks:
+    - name: oneview-create-asset
+      params:
+        - name: templateName
+          value: Openshift-BM2
+        - name: serialNumber
+          value: cz24440420
+        - name: serverName
+          value: ocp-bm4-master01
+      taskRef:
+        kind: Task
+        name: oneview-create-asset
+    - name: oneview-create-asset-oxn
+      params:
+        - name: templateName
+          value: Openshift-BM2
+        - name: serialNumber
+          value: cz2444041w
+        - name: serverName
+          value: ocp-bm4-master02
+      taskRef:
+        kind: Task
+        name: oneview-create-asset
+    - name: oneview-create-asset-s1n
+      params:
+        - name: templateName
+          value: Openshift-BM2
+        - name: serialNumber
+          value: cz2444041z
+        - name: serverName
+          value: ocp-bm4-master03
+      taskRef:
+        kind: Task
+        name: oneview-create-asset
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: create-bm2-cluster-assets
+  namespace: open-cluster-management
+spec:
+  tasks:
+    - name: oneview-create-asset
+      params:
+        - name: templateName
+          value: Openshift-BM
+        - name: serialNumber
+          value: cz3442f1xa
+        - name: serverName
+          value: ocp-bm2-master01
+      taskRef:
+        kind: Task
+        name: oneview-create-asset
+    - name: oneview-create-asset-oxn
+      params:
+        - name: templateName
+          value: Openshift-BM
+        - name: serialNumber
+          value: cz24440423
+        - name: serverName
+          value: ocp-bm2-master02
+      taskRef:
+        kind: Task
+        name: oneview-create-asset
+    - name: oneview-create-asset-s1n
+      params:
+        - name: templateName
+          value: Openshift-BM
+        - name: serialNumber
+          value: cz3442f1xf
+        - name: serverName
+          value: ocp-bm2-master03
+      taskRef:
+        kind: Task
+        name: oneview-create-asset
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: create-bm3-cluster-assets
+  namespace: open-cluster-management
+spec:
+  tasks:
+    - name: oneview-create-asset
+      params:
+        - name: templateName
+          value: Openshift-BM
+        - name: serialNumber
+          value: cz2444041y
+        - name: serverName
+          value: ocp-bm3-master01
+      taskRef:
+        kind: Task
+        name: oneview-create-asset
+    - name: oneview-create-asset-oxn
+      params:
+        - name: templateName
+          value: Openshift-BM
+        - name: serialNumber
+          value: cz3442f1wv
+        - name: serverName
+          value: ocp-bm3-master02
+      taskRef:
+        kind: Task
+        name: oneview-create-asset
+    - name: oneview-create-asset-s1n
+      params:
+        - name: templateName
+          value: Openshift-BM
+        - name: serialNumber
+          value: cz2444041t
+        - name: serverName
+          value: ocp-bm3-master03
+      taskRef:
+        kind: Task
+        name: oneview-create-asset

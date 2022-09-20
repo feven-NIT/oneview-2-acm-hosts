@@ -1,0 +1,93 @@
+<!DOCTYPE HTML>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <title>BareMetal Assets with OneView</title>
+
+    <link rel="stylesheet" href="index.css"/>
+    <script src="assets.js"></script>
+    <script language="javascript">
+
+function showAsset(asset) {
+        if (! assets[asset]) return "";
+        var html = "<table class='table'><tr class='row header'><td class='cell header1' colspan='2'>"+asset+"</td></tr>";
+        if (assets[asset].role != null) {
+                html += "<tr class='row'>";
+                html += "<td class='cell'>ROLE</td><td>" + assets[asset].role + "</td>";
+                html += "</tr>";
+        }
+        if (assets[asset].url != null) {
+                html += "<tr class='row'>";
+                html += "<td class='cell'>URL</td><td>" + assets[asset].url + "</td>";
+                html += "</tr>";
+        }
+        if (assets[asset].mac != null) {
+                html += "<tr class='row'>";
+                html += "<td class='cell'>MAC</td><td>" + assets[asset].mac + "</td>";
+                html += "</tr>";
+        }
+        if (assets[asset].cluster != null) {
+                html += "<tr class='row'>";
+                html += "<td class='cell'>CLUSTER</td><td>" + assets[asset].cluster + "</td>";
+                html += "</tr>";
+        }    
+        if (assets[asset].template != null) {
+                html += "<tr class='row'>";
+                html += "<td class='cell'>TEMPLATE</td><td>" + assets[asset].template + "</td>";
+                html += "</tr>";
+        }        
+        if (assets[asset].power != null) {
+                html += "<tr class='row'>";
+                html += "<td class='cell'>POWER</td><td>" + assets[asset].power + "</td>";
+                html += "</tr>";
+        }      
+        html += "</table>";
+        return html;
+}
+        
+function showAssets() {
+        var div = document.getElementById("assets");
+        var html = "<table>";
+        var maxrow = 3;
+        var i = 0;
+        for (var asset in assets) {
+                if (i%maxrow == 0) html += "<tr>";
+                html += "<td><div id='asset:"+asset+"'></div></td>"
+                if (i%maxrow == (maxrow-1)) html += "</tr>";
+                i += 1;
+        }
+        html += "</table>";
+        div.innerHTML = html;
+        for (var asset in assets) {
+            element = document.getElementById("asset:"+asset);
+            element.innerHTML = showAsset(asset);
+        }
+}
+
+
+function init() {
+        showAssets();
+}
+
+  </script>
+
+</head>
+<body onload="init()">
+
+<h2>List of provisionned assets</h2>
+<div id="assets" class='wrapper'>
+</div>
+<br/>
+<form method="post">
+  Name of the new asset (will use server serial number if not provided): <input type="text" name="asset" size="10"/>
+  <br/>
+  Template for the new asset <select name="template">
+        <option selected="selected" value="Openshift-BM">Openshift-BM</option>
+        <option value="Openshift-BM2">Openshift-BM2</option>
+  </select>
+  <br/>
+  <input type="submit" value="Add the asset"/>
+</form>
+
+</body>
+</html>

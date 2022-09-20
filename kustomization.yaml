@@ -1,0 +1,7 @@
+resources:
+- deployment.yaml
+- buildconfig.yaml
+- service.yaml
+- route.yaml
+- task.yaml
+- pipelines.yaml
