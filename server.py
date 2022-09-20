@@ -79,7 +79,7 @@ def assets():
   S.used = True
 
   #Get BaremetalHost Template
-  file=open('resources/asset.yaml')
+  file=open('resources/bareMetalHost.yaml')
   baremetalHost = file.read()
   file.close()
 
